@@ -2,7 +2,7 @@
 {% block content %}
 <div class="flex justify-between items-center mb-6">
     <h1 class="text-2xl font-bold">Respaldos del Sistema</h1>
-    <form method="POST" action="{{ url_for('admin.create_backup') }}">
+    <form method="POST" action="{{ url_for('backups.create_backup') }}">
         <button class="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800">
             Generar nuevo backup
         </button>
@@ -15,7 +15,7 @@
             {% for file in files %}
             <li class="flex justify-between items-center border-b pb-2">
                 <span>{{ file }}</span>
-                <a href="{{ url_for('admin.download_backup', filename=file) }}" class="text-blue-700 hover:underline">
+                <a href="{{ url_for('backups.download_backup', filename=file) }}" class="text-blue-700 hover:underline">
                     Descargar
                 </a>
             </li>

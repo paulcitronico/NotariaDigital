@@ -25,7 +25,7 @@
 
         {% if document.copy_file_path %}
         <div class="mt-4">
-            <a href="/copias/{{ document.copy_file_path }}" class="bg-blue-700 text-white px-4 py-2 rounded">
+            <a href="{{ url_for('public.public_copy_download', filename=document.copy_file_path) }}" class="bg-blue-700 text-white px-4 py-2 rounded">
                 Descargar copia electrónica
             </a>
         </div>

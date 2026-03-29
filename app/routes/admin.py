@@ -8,6 +8,7 @@ from app.utils import log_action, generate_code, sha256_file
 import os
 import shutil
 from sqlalchemy import func
+from app.models import AuditLog
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -32,13 +33,18 @@ def dashboard():
     complaints_labels = [item[0] for item in complaints_by_status]
     complaints_values = [item[1] for item in complaints_by_status]
 
+    recent_logs = AuditLog.query.order_by(AuditLog.fecha.desc()).limit(8).all()
+    users = {u.id: u for u in User.query.all()}
+
     return render_template(
         "admin/dashboard.html",
         stats=stats,
         docs_labels=docs_labels,
         docs_values=docs_values,
         complaints_labels=complaints_labels,
-        complaints_values=complaints_values
+        complaints_values=complaints_values,
+        recent_logs=recent_logs,
+        users=users
     )
 
 # --- GESTIÓN DE USUARIOS ---
@@ -47,8 +53,10 @@ def dashboard():
 @login_required
 @roles_required("admin")
 def list_users():
-    users = User.query.all()
-    return render_template("admin/users.html", users=users)
+    page = request.args.get("page", 1, type=int)
+    pagination = User.query.filter_by(eliminado=False).order_by(User.fecha_creacion.desc()).paginate(page=page, per_page=10, error_out=False)
+    users = pagination.items
+    return render_template("admin/users.html", users=users, pagination=pagination)
 
 @admin_bp.route("/users/new", methods=["GET", "POST"])
 @login_required
@@ -94,24 +102,60 @@ def delete_user(id):
 def office_config():
     office = OfficeConfig.query.first()
     if not office:
-        office = OfficeConfig(nombre_notaria="Nueva Notaría") # Default
+        office = OfficeConfig(nombre_notaria="Nueva Notaría")
+        db.session.add(office)
+        db.session.commit()
     
     form = OfficeConfigForm(obj=office)
     
     if form.validate_on_submit():
+        # Campos básicos
         office.nombre_notaria = form.nombre_notaria.data
         office.direccion = form.direccion.data
         office.comuna = form.comuna.data
         office.region = form.region.data
         office.correo_oficial = form.correo_oficial.data
         office.telefono = form.telefono.data
-        office.horario_apertura = form.horario_apertura.data
-        office.horario_cierre = form.horario_cierre.data
         office.horas_minimas_atencion = form.horas_minimas_atencion.data
+        
+        # Campos de horario flexible (del request.form)
+        office.tipo_horario = request.form.get('tipo_horario', 'continuo')
+        
+        # Horario continuo
+        office.hora_apertura = request.form.get('hora_apertura')
+        office.hora_cierre = request.form.get('hora_cierre')
+        
+        # Horario turnos
+        office.turno_manana_inicio = request.form.get('turno_manana_inicio')
+        office.turno_manana_fin = request.form.get('turno_manana_fin')
+        office.turno_tarde_inicio = request.form.get('turno_tarde_inicio')
+        office.turno_tarde_fin = request.form.get('turno_tarde_fin')
+        
+        # Horario colación
+        office.colacion_apertura = request.form.get('colacion_apertura')
+        office.colacion_inicio = request.form.get('colacion_inicio')
+        office.colacion_fin = request.form.get('colacion_fin')
+        office.colacion_cierre = request.form.get('colacion_cierre')
+        
+        # Días de atención
+        dias = request.form.getlist('dias_atencion')
+        office.dias_atencion = ','.join(dias) if dias else 'lunes,martes,miercoles,jueves,viernes'
+        
+        # Opciones sábado
+        office.tipo_sabado = request.form.get('tipo_sabado', 'medio')
+        office.sabado_inicio = request.form.get('sabado_inicio')
+        office.sabado_fin = request.form.get('sabado_fin')
+        
+        # Duración trámite
+        office.duracion_tramite = request.form.get('duracion_tramite', 30, type=int)
+        
+        # Mantener compatibilidad con campos antiguos
+        office.horario_apertura = request.form.get('hora_apertura') or request.form.get('horario_apertura')
+        office.horario_cierre = request.form.get('hora_cierre') or request.form.get('horario_cierre')
         
         db.session.commit()
         log_action(current_user.id, "config", "actualizar", "Configuración de notaría actualizada")
-        flash("Configuración actualizada", "success")
+        flash("Configuración actualizada correctamente", "success")
         return redirect(url_for("admin.office_config"))
     
     return render_template("admin/office_config.html", form=form, office=office)
@@ -160,7 +204,7 @@ def edit_user(id):
         flash("Usuario actualizado correctamente", "success")
         return redirect(url_for("admin.list_users"))
 
-    return render_template("admin/user_form.html", form=form)
+    return render_template("admin/user_form.html", form=form, user=user)
 
 @admin_bp.route("/users/<int:id>/toggle-active", methods=["POST"])
 @login_required
@@ -177,3 +221,19 @@ def toggle_user_active(id):
     log_action(current_user.id, "usuarios", "toggle_active", f"Usuario {user.nombre} activo={user.activo}")
     flash("Estado del usuario actualizado", "success")
     return redirect(url_for("admin.list_users"))
+
+@admin_bp.route("/services/<int:id>/edit", methods=["GET", "POST"])
+@login_required
+@roles_required("admin", "notario")
+def edit_service(id):
+    service = Service.query.get_or_404(id)
+    form = ServiceForm(obj=service)
+    if form.validate_on_submit():
+        service.nombre = form.nombre.data
+        service.descripcion = form.descripcion.data
+        service.tarifa = form.tarifa.data
+        service.activo = form.activo.data
+        db.session.commit()
+        flash("Servicio actualizado", "success")
+        return redirect(url_for("admin.services"))
+    return render_template("admin/service_form.html", form=form, service=service)

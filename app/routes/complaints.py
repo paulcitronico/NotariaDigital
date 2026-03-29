@@ -5,14 +5,26 @@ from app.models import Complaint
 from app.forms import ComplaintResponseForm
 from app.extensions import db
 from app.utils import log_action
+from flask import request
 
 complaints_bp = Blueprint("complaints", __name__, url_prefix="/admin/complaints")
 
 @complaints_bp.route("/")
 @login_required
 def list_complaints():
-    complaints = Complaint.query.order_by(Complaint.fecha_creacion.desc()).all()
-    return render_template("complaints/list.html", complaints=complaints)
+    estado = request.args.get("estado", "").strip()
+    page = request.args.get("page", 1, type=int)
+
+    query = Complaint.query.order_by(Complaint.fecha_creacion.desc())
+
+    if estado:
+        query = query.filter_by(estado=estado)
+
+    pagination = query.paginate(page=page, per_page=10, error_out=False)
+    complaints = pagination.items
+
+    return render_template("complaints/list.html", complaints=complaints, pagination=pagination, estado=estado)
+
 
 @complaints_bp.route("/<int:id>", methods=["GET", "POST"])
 @login_required

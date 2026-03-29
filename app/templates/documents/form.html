@@ -2,7 +2,7 @@
 {% block content %}
 <div class="bg-white p-6 rounded shadow max-w-2xl">
     <h1 class="text-2xl font-bold mb-4">Nuevo documento</h1>
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST" action="{{ url_for('documents.new_document') }}" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
         <div class="mb-3">{{ form.tipo_documento.label }} {{ form.tipo_documento(class="w-full border p-2 rounded") }}</div>
         <div class="mb-3">{{ form.titulo.label }} {{ form.titulo(class="w-full border p-2 rounded") }}</div>

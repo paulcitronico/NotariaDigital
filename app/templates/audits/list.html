@@ -2,10 +2,10 @@
 {% block content %}
 <div class="flex justify-between items-center mb-4">
     <h1 class="text-2xl font-bold">Auditoría</h1>
-    <a href="/admin/audits/export" class="bg-green-700 text-white px-4 py-2 rounded">Exportar CSV</a>
+    <a href="{{ url_for('audits.export_audits') }}" class="bg-green-700 text-white px-4 py-2 rounded">Exportar CSV</a>
 </div>
 
-<form method="GET" class="mb-4 flex gap-2">
+<form method="GET" class="mb-4 flex gap-2 flex-wrap">
     <input type="text" name="modulo" value="{{ modulo }}" placeholder="Filtrar por módulo" class="border p-2 rounded">
     <input type="text" name="accion" value="{{ accion }}" placeholder="Filtrar por acción" class="border p-2 rounded">
     <button class="bg-gray-700 text-white px-4 py-2 rounded">Filtrar</button>
@@ -14,6 +14,7 @@
 <table class="w-full bg-white rounded shadow">
     <tr class="border-b">
         <th class="p-2 text-left">Fecha</th>
+        <th class="p-2 text-left">Usuario</th>
         <th class="p-2 text-left">Módulo</th>
         <th class="p-2 text-left">Acción</th>
         <th class="p-2 text-left">Detalle</th>
@@ -21,10 +22,29 @@
     {% for log in logs %}
     <tr class="border-b">
         <td class="p-2">{{ log.fecha.strftime('%d-%m-%Y %H:%M:%S') }}</td>
+        <td class="p-2">
+            {{ users[log.user_id].nombre if log.user_id in users else 'Sistema/Desconocido' }}
+        </td>
         <td class="p-2">{{ log.modulo }}</td>
         <td class="p-2">{{ log.accion }}</td>
         <td class="p-2">{{ log.detalle }}</td>
     </tr>
     {% endfor %}
 </table>
+
+<div class="mt-6 flex justify-center gap-2">
+    {% if pagination.has_prev %}
+        <a href="{{ url_for('audits.list_audits', page=pagination.prev_num, modulo=modulo, accion=accion) }}"
+           class="px-3 py-1 bg-gray-300 rounded">Anterior</a>
+    {% endif %}
+
+    <span class="px-3 py-1 bg-white rounded shadow">
+        Página {{ pagination.page }} de {{ pagination.pages or 1 }}
+    </span>
+
+    {% if pagination.has_next %}
+        <a href="{{ url_for('audits.list_audits', page=pagination.next_num, modulo=modulo, accion=accion) }}"
+           class="px-3 py-1 bg-gray-300 rounded">Siguiente</a>
+    {% endif %}
+</div>
 {% endblock %}

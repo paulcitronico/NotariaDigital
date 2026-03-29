@@ -1,9 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="max-w-3xl mx-auto bg-white p-8 rounded shadow">
-    <h1 class="text-2xl font-bold mb-6">Formulario de Sanción</h1>
+    <h1 class="text-2xl font-bold mb-6">
+        {% if sanction %}Editar Sanción{% else %}Nueva Sanción{% endif %}
+    </h1>
 
-    <form method="POST">
+    <form method="POST" action="{% if sanction %}{{ url_for('sanctions.edit_sanction', id=sanction.id) }}{% else %}{{ url_for('sanctions.new_sanction') }}{% endif %}">
         {{ form.hidden_tag() }}
 
         <div class="mb-4">

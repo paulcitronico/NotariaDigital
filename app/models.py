@@ -33,9 +33,41 @@ class OfficeConfig(db.Model):
     region = db.Column(db.String(100), nullable=False)
     correo_oficial = db.Column(db.String(150), nullable=False)
     telefono = db.Column(db.String(50))
-    horario_apertura = db.Column(db.String(20), nullable=False)
-    horario_cierre = db.Column(db.String(20), nullable=False)
+    
+    # Campos de horario (mantener compatibilidad)
+    horario_apertura = db.Column(db.String(20))
+    horario_cierre = db.Column(db.String(20))
+    
+    # Nuevos campos para horario flexible
+    tipo_horario = db.Column(db.String(20), default='continuo')  # continuo, turnos, colacion
+    
+    # Horario continuo
+    hora_apertura = db.Column(db.String(10))
+    hora_cierre = db.Column(db.String(10))
+    
+    # Horario por turnos
+    turno_manana_inicio = db.Column(db.String(10))
+    turno_manana_fin = db.Column(db.String(10))
+    turno_tarde_inicio = db.Column(db.String(10))
+    turno_tarde_fin = db.Column(db.String(10))
+    
+    # Horario con colación
+    colacion_apertura = db.Column(db.String(10))
+    colacion_inicio = db.Column(db.String(10))
+    colacion_fin = db.Column(db.String(10))
+    colacion_cierre = db.Column(db.String(10))
+    
+    # Días de atención (almacenados como string separado por comas: "lunes,martes,miercoles...")
+    dias_atencion = db.Column(db.String(100), default='lunes,martes,miercoles,jueves,viernes')
+    
+    # Opciones de sábado
+    tipo_sabado = db.Column(db.String(20), default='medio')  # completo, medio, tarde
+    sabado_inicio = db.Column(db.String(10))
+    sabado_fin = db.Column(db.String(10))
+    
+    # Configuración adicional
     horas_minimas_atencion = db.Column(db.Integer, default=7)
+    duracion_tramite = db.Column(db.Integer, default=30)  # minutos estimados por trámite
 
 class Service(db.Model):
     id = db.Column(db.Integer, primary_key=True)

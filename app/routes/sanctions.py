@@ -13,14 +13,18 @@ sanctions_bp = Blueprint("sanctions", __name__, url_prefix="/admin/sanctions")
 @roles_required("admin", "notario")
 def list_sanctions():
     q = request.args.get("q", "").strip()
+    page = request.args.get("page", 1, type=int)
+
     sanctions_query = Sanction.query.order_by(Sanction.fecha_sancion.desc())
 
     if q:
         sanctions_query = sanctions_query.join(User, Sanction.funcionario_id == User.id).filter(User.nombre.ilike(f"%{q}%"))
 
-    sanctions = sanctions_query.all()
+    pagination = sanctions_query.paginate(page=page, per_page=10, error_out=False)
+    sanctions = pagination.items
     users = {u.id: u for u in User.query.all()}
-    return render_template("sanctions/list.html", sanctions=sanctions, users=users, q=q)
+
+    return render_template("sanctions/list.html", sanctions=sanctions, users=users, q=q, pagination=pagination)
 
 @sanctions_bp.route("/new", methods=["GET", "POST"])
 @login_required

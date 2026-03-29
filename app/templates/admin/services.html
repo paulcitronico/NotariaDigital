@@ -2,21 +2,32 @@
 {% block content %}
 <div class="flex justify-between mb-4">
     <h1 class="text-2xl font-bold">Servicios</h1>
-    <a href="{{ url_for('admin.new_service') }}" class="bg-blue-700 text-white px-4 py-2 rounded">Nuevo</a>
+    <a href="{{ url_for('admin.new_service') }}" class="bg-blue-700 text-white px-4 py-2 rounded">
+        Nuevo
+    </a>
 </div>
+
 <table class="w-full bg-white shadow rounded">
     <tr class="border-b">
         <th class="p-2 text-left">Nombre</th>
         <th class="p-2 text-left">Tarifa</th>
-        <th class="p-2">Acciones</th>
+        <th class="p-2 text-left">Estado</th>
     </tr>
     {% for item in items %}
     <tr class="border-b">
         <td class="p-2">{{ item.nombre }}</td>
         <td class="p-2">${{ item.tarifa }}</td>
         <td class="p-2">
-            <a href="{{ url_for('admin.edit_service', id=item.id) }}" class="text-blue-700">Editar</a>
+            {% if item.activo %}
+                <span class="text-green-600 font-semibold">Activo</span>
+            {% else %}
+                <span class="text-red-600 font-semibold">Inactivo</span>
+            {% endif %}
         </td>
+        <!-- En services.html, agregar dentro del loop de items -->
+<td class="p-2">
+    <a href="{{ url_for('admin.edit_service', id=item.id) }}" class="text-blue-700 hover:underline">Editar</a>
+</td>
     </tr>
     {% endfor %}
 </table>

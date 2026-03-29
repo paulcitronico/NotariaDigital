@@ -1,50 +1,286 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="max-w-3xl mx-auto bg-white p-8 rounded shadow">
+<div class="max-w-4xl mx-auto bg-white p-8 rounded shadow">
     <h1 class="text-2xl font-bold mb-6">Configuración de la Notaría</h1>
+    
     <form method="POST" action="{{ url_for('admin.office_config') }}">
         {{ form.hidden_tag() }}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="col-span-2">
-                {{ form.nombre_notaria.label(class="block font-bold") }}
-                {{ form.nombre_notaria(class="w-full border p-2 rounded") }}
-            </div>
-            <div>
-                {{ form.direccion.label(class="block font-bold") }}
-                {{ form.direccion(class="w-full border p-2 rounded") }}
-            </div>
-            <div>
-                {{ form.comuna.label(class="block font-bold") }}
-                {{ form.comuna(class="w-full border p-2 rounded") }}
-            </div>
-            <div>
-                {{ form.region.label(class="block font-bold") }}
-                {{ form.region(class="w-full border p-2 rounded") }}
-            </div>
-            <div>
-                {{ form.correo_oficial.label(class="block font-bold") }}
-                {{ form.correo_oficial(class="w-full border p-2 rounded") }}
-            </div>
-            <div>
-                {{ form.telefono.label(class="block font-bold") }}
-                {{ form.telefono(class="w-full border p-2 rounded") }}
-            </div>
-            <div>
-                {{ form.horario_apertura.label(class="block font-bold") }}
-                {{ form.horario_apertura(class="w-full border p-2 rounded") }}
-            </div>
-            <div>
-                {{ form.horario_cierre.label(class="block font-bold") }}
-                {{ form.horario_cierre(class="w-full border p-2 rounded") }}
-            </div>
-            <div>
-                {{ form.horas_minimas_atencion.label(class="block font-bold") }}
-                {{ form.horas_minimas_atencion(class="w-full border p-2 rounded") }}
+        
+        <!-- Información General -->
+        <div class="mb-8">
+            <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 mb-4">Información General</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2">
+                    {{ form.nombre_notaria.label(class="block font-bold mb-1") }}
+                    {{ form.nombre_notaria(class="w-full border p-2 rounded") }}
+                </div>
+                <div>
+                    {{ form.direccion.label(class="block font-bold mb-1") }}
+                    {{ form.direccion(class="w-full border p-2 rounded") }}
+                </div>
+                <div>
+                    {{ form.comuna.label(class="block font-bold mb-1") }}
+                    {{ form.comuna(class="w-full border p-2 rounded") }}
+                </div>
+                <div>
+                    {{ form.region.label(class="block font-bold mb-1") }}
+                    {{ form.region(class="w-full border p-2 rounded") }}
+                </div>
+                <div>
+                    {{ form.correo_oficial.label(class="block font-bold mb-1") }}
+                    {{ form.correo_oficial(class="w-full border p-2 rounded") }}
+                </div>
+                <div>
+                    {{ form.telefono.label(class="block font-bold mb-1") }}
+                    {{ form.telefono(class="w-full border p-2 rounded") }}
+                </div>
             </div>
         </div>
+
+        <!-- Horario de Atención -->
+        <div class="mb-8">
+            <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 mb-4">Horario de Atención</h2>
+            
+            <!-- Selector de tipo de horario -->
+            <div class="mb-6">
+                <label class="block font-bold mb-2">Modalidad de Atención</label>
+                <div class="flex gap-4 flex-wrap">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="tipo_horario" value="continuo" 
+                               {% if office and office.tipo_horario == 'continuo' %}checked{% endif %}
+                               class="tipo-horario-radio" onchange="toggleHorario()">
+                        <span>Horario Continuo</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="tipo_horario" value="turnos" 
+                               {% if office and office.tipo_horario == 'turnos' %}checked{% endif %}
+                               class="tipo-horario-radio" onchange="toggleHorario()">
+                        <span>Turnos (Mañana y Tarde)</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="tipo_horario" value="colacion" 
+                               {% if office and office.tipo_horario == 'colacion' %}checked{% endif %}
+                               class="tipo-horario-radio" onchange="toggleHorario()">
+                        <span>Con Horario de Colación</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Horario Continuo -->
+            <div id="horario-continuo" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block font-semibold mb-1">Hora Apertura</label>
+                    <input type="time" name="hora_apertura" 
+                           value="{{ office.hora_apertura if office else '09:00' }}"
+                           class="w-full border p-2 rounded">
+                </div>
+                <div>
+                    <label class="block font-semibold mb-1">Hora Cierre</label>
+                    <input type="time" name="hora_cierre" 
+                           value="{{ office.hora_cierre if office else '17:00' }}"
+                           class="w-full border p-2 rounded">
+                </div>
+            </div>
+
+            <!-- Horario por Turnos (Mañana y Tarde) -->
+            <div id="horario-turnos" class="hidden space-y-4 mb-4">
+                <div class="bg-blue-50 p-4 rounded">
+                    <h3 class="font-semibold text-blue-800 mb-3">Turno Mañana</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Inicio</label>
+                            <input type="time" name="turno_manana_inicio" 
+                                   value="{{ office.turno_manana_inicio if office else '09:00' }}"
+                                   class="w-full border p-2 rounded">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Término</label>
+                            <input type="time" name="turno_manana_fin" 
+                                   value="{{ office.turno_manana_fin if office else '13:00' }}"
+                                   class="w-full border p-2 rounded">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-indigo-50 p-4 rounded">
+                    <h3 class="font-semibold text-indigo-800 mb-3">Turno Tarde</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Inicio</label>
+                            <input type="time" name="turno_tarde_inicio" 
+                                   value="{{ office.turno_tarde_inicio if office else '15:00' }}"
+                                   class="w-full border p-2 rounded">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Término</label>
+                            <input type="time" name="turno_tarde_fin" 
+                                   value="{{ office.turno_tarde_fin if office else '18:00' }}"
+                                   class="w-full border p-2 rounded">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Horario con Colación -->
+            <div id="horario-colacion" class="hidden space-y-4 mb-4">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Apertura</label>
+                        <input type="time" name="colacion_apertura" 
+                               value="{{ office.colacion_apertura if office else '09:00' }}"
+                               class="w-full border p-2 rounded">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Inicio Colación</label>
+                        <input type="time" name="colacion_inicio" 
+                               value="{{ office.colacion_inicio if office else '13:00' }}"
+                               class="w-full border p-2 rounded">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Fin Colación</label>
+                        <input type="time" name="colacion_fin" 
+                               value="{{ office.colacion_fin if office else '14:00' }}"
+                               class="w-full border p-2 rounded">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Cierre</label>
+                        <input type="time" name="colacion_cierre" 
+                               value="{{ office.colacion_cierre if office else '17:00' }}"
+                               class="w-full border p-2 rounded">
+                    </div>
+                </div>
+                <p class="text-sm text-gray-600 italic">Ejemplo: 09:00 - 13:00 | 14:00 - 17:00 (colación de 13:00 a 14:00)</p>
+            </div>
+        </div>
+
+        <!-- Días de Atención -->
+        <div class="mb-8">
+            <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 mb-4">Días de Atención</h2>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                {% set dias_semana = [
+                    ('lunes', 'Lunes'),
+                    ('martes', 'Martes'),
+                    ('miercoles', 'Miércoles'),
+                    ('jueves', 'Jueves'),
+                    ('viernes', 'Viernes'),
+                    ('sabado', 'Sábado'),
+                    ('domingo', 'Domingo')
+                ] %}
+                
+                {% for dia_key, dia_nombre in dias_semana %}
+                <label class="flex items-center gap-2 p-3 border rounded cursor-pointer hover:bg-gray-50">
+                    <input type="checkbox" name="dias_atencion" value="{{ dia_key }}"
+                           {% if office and dia_key in (office.dias_atencion or '').split(',') %}checked{% endif %}
+                           class="dia-atencion-checkbox">
+                    <span class="text-sm font-medium">{{ dia_nombre }}</span>
+                </label>
+                {% endfor %}
+            </div>
+
+            <!-- Opciones adicionales para sábado -->
+            <div id="opciones-sabado" class="hidden bg-yellow-50 p-4 rounded mb-4">
+                <h3 class="font-semibold text-yellow-800 mb-3">Horario Especial Sábados</h3>
+                <div class="flex gap-4 items-center">
+                    <label class="flex items-center gap-2">
+                        <input type="radio" name="tipo_sabado" value="completo"
+                               {% if office and office.tipo_sabado == 'completo' %}checked{% endif %}>
+                        <span>Jornada completa</span>
+                    </label>
+                    <label class="flex items-center gap-2">
+                        <input type="radio" name="tipo_sabado" value="medio"
+                               {% if office and office.tipo_sabado == 'medio' %}checked{% endif %}>
+                        <span>Medio día (mañana)</span>
+                    </label>
+                    <label class="flex items-center gap-2">
+                        <input type="radio" name="tipo_sabado" value="tarde"
+                               {% if office and office.tipo_sabado == 'tarde' %}checked{% endif %}>
+                        <span>Solo tarde</span>
+                    </label>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 mt-3" id="horario-sabado-container">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Desde</label>
+                        <input type="time" name="sabado_inicio" 
+                               value="{{ office.sabado_inicio if office else '09:00' }}"
+                               class="w-full border p-2 rounded">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Hasta</label>
+                        <input type="time" name="sabado_fin" 
+                               value="{{ office.sabado_fin if office else '13:00' }}"
+                               class="w-full border p-2 rounded">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Horas Mínimas de Atención -->
+        <div class="mb-6">
+            <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 mb-4">Configuración Adicional</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    {{ form.horas_minimas_atencion.label(class="block font-bold mb-1") }}
+                    {{ form.horas_minimas_atencion(class="w-full border p-2 rounded") }}
+                    <p class="text-sm text-gray-500 mt-1">Horas mínimas que debe atender la notaría por día</p>
+                </div>
+                <div>
+                    <label class="block font-bold mb-1">Duración Estimada por Trámite (minutos)</label>
+                    <input type="number" name="duracion_tramite" min="15" max="120" 
+                           value="{{ office.duracion_tramite if office else '30' }}"
+                           class="w-full border p-2 rounded">
+                </div>
+            </div>
+        </div>
+
         <div class="mt-6">
-            {{ form.submit(class="w-full bg-blue-700 text-white py-3 rounded font-bold cursor-pointer") }}
+            {{ form.submit(class="w-full bg-blue-700 text-white py-3 rounded font-bold cursor-pointer hover:bg-blue-800") }}
         </div>
     </form>
 </div>
+
+<script>
+function toggleHorario() {
+    const tipo = document.querySelector('input[name="tipo_horario"]:checked')?.value || 'continuo';
+    
+    // Ocultar todos los bloques
+    document.getElementById('horario-continuo').classList.add('hidden');
+    document.getElementById('horario-turnos').classList.add('hidden');
+    document.getElementById('horario-colacion').classList.add('hidden');
+    
+    // Mostrar el seleccionado
+    if (tipo === 'continuo') {
+        document.getElementById('horario-continuo').classList.remove('hidden');
+    } else if (tipo === 'turnos') {
+        document.getElementById('horario-turnos').classList.remove('hidden');
+    } else if (tipo === 'colacion') {
+        document.getElementById('horario-colacion').classList.remove('hidden');
+    }
+}
+
+// Mostrar/ocultar opciones de sábado
+document.querySelectorAll('.dia-atencion-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+        const sabadoChecked = document.querySelector('input[value="sabado"]').checked;
+        const opcionesSabado = document.getElementById('opciones-sabado');
+        
+        if (sabadoChecked) {
+            opcionesSabado.classList.remove('hidden');
+        } else {
+            opcionesSabado.classList.add('hidden');
+        }
+    });
+});
+
+// Inicializar al cargar
+document.addEventListener('DOMContentLoaded', function() {
+    toggleHorario();
+    
+    // Verificar si sábado está marcado al cargar
+    if (document.querySelector('input[value="sabado"]').checked) {
+        document.getElementById('opciones-sabado').classList.remove('hidden');
+    }
+});
+</script>
 {% endblock %}

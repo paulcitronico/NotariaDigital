@@ -23,14 +23,14 @@
 
         {% if doc.original_file_path %}
         <div class="mb-4 flex flex-wrap gap-2">
-            <a href="/documents/{{ doc.id }}/download-original" class="bg-gray-700 text-white px-4 py-2 rounded">
+            <a href="{{ url_for('documents.download_original', id=doc.id) }}" class="bg-gray-700 text-white px-4 py-2 rounded">
                 Descargar original
             </a>
             <a href="https://www.ecertchile.cl/" target="_blank" class="bg-purple-700 text-white px-4 py-2 rounded">
                 Ir a ecert
             </a>
             {% if doc.signed_file_path %}
-            <a href="/documents/{{ doc.id }}/download-signed" class="bg-green-700 text-white px-4 py-2 rounded">
+            <a href="{{ url_for('documents.download_signed', id=doc.id) }}" class="bg-green-700 text-white px-4 py-2 rounded">
                 Descargar firmado
             </a>
             {% endif %}
@@ -43,7 +43,7 @@
             <p><strong>Proveedor:</strong> {{ doc.provider_signature }}</p>
             <p><strong>Hash:</strong> {{ doc.hash_signed_file }}</p>
 
-            <form method="POST" action="/documents/{{ doc.id }}/emit-copy" class="mt-4">
+            <form method="POST" action="{{ url_for('documents.emit_copy', id=doc.id) }}" class="mt-4">
                 <button class="bg-blue-700 text-white px-4 py-2 rounded">Emitir copia electrónica</button>
             </form>
         </div>
@@ -52,7 +52,7 @@
         {% if doc.copy_file_path %}
         <div class="bg-blue-50 border border-blue-200 p-4 rounded">
             <p><strong>Copia electrónica disponible.</strong></p>
-            <a href="/copias/{{ doc.copy_file_path }}" class="text-blue-700 underline">Descargar copia electrónica</a>
+            <a href="{{ url_for('public.public_copy_download', filename=doc.copy_file_path) }}" class="text-blue-700 underline">Descargar copia electrónica</a>
         </div>
         {% endif %}
     </div>
@@ -61,7 +61,7 @@
         {% if not doc.enviado_firma_externa and doc.estado != 'firmado' %}
         <div class="bg-white p-6 rounded shadow">
             <h2 class="text-xl font-bold mb-4">Enviar a firma externa</h2>
-            <form method="POST" action="/documents/{{ doc.id }}/mark-external-sign">
+            <form method="POST" action="{{ url_for('documents.mark_external_sign', id=doc.id) }}">
                 {{ firma_form.hidden_tag() }}
                 <div class="mb-4">
                     {{ firma_form.observacion_firma.label(class="block mb-1 font-semibold") }}
@@ -75,7 +75,7 @@
         {% if doc.estado != 'firmado' %}
         <div class="bg-white p-6 rounded shadow">
             <h2 class="text-xl font-bold mb-4">Subir documento firmado</h2>
-            <form method="POST" action="/documents/{{ doc.id }}/upload-signed" enctype="multipart/form-data">
+            <form method="POST" action="{{ url_for('documents.upload_signed', id=doc.id) }}" enctype="multipart/form-data">
                 {{ form.hidden_tag() }}
                 <div class="mb-3">
                     {{ form.provider_signature.label(class="block mb-1 font-semibold") }}

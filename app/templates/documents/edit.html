@@ -44,7 +44,7 @@
         </div>
     </form>
 
-    <form method="POST" action="/documents/{{ doc.id }}/delete" class="mt-4">
+    <form method="POST" action="{{ url_for('documents.delete_document', id=doc.id) }}" class="mt-4">
         <button class="bg-red-700 text-white px-6 py-3 rounded">Ocultar documento</button>
     </form>
 </div>

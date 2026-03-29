@@ -95,8 +95,11 @@ class OfficeConfigForm(FlaskForm):
     region = StringField("Región", validators=[DataRequired()])
     correo_oficial = StringField("Correo Oficial", validators=[DataRequired(), Email()])
     telefono = StringField("Teléfono")
-    horario_apertura = StringField("Horario Apertura (ej: 09:00)", validators=[DataRequired()])
-    horario_cierre = StringField("Horario Cierre (ej: 17:00)", validators=[DataRequired()])
+    
+    # Mantener campos antiguos para compatibilidad (opcional)
+    horario_apertura = StringField("Horario Apertura (ej: 09:00)", validators=[Optional()])
+    horario_cierre = StringField("Horario Cierre (ej: 17:00)", validators=[Optional()])
+    
     horas_minimas_atencion = IntegerField("Horas Mínimas de Atención", validators=[DataRequired()])
     submit = SubmitField("Actualizar Configuración")
 

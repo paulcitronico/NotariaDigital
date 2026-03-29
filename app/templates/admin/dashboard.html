@@ -40,14 +40,59 @@
     <div class="bg-white p-6 rounded-lg shadow">
         <h2 class="text-xl font-bold mb-4">Accesos Rápidos</h2>
         <div class="grid grid-cols-2 gap-2">
-            <a href="{{ url_for('documents.index') }}" class="bg-blue-50 text-blue-700 p-3 rounded text-center hover:bg-blue-100">Gestión Documentos</a>
-            <a href="{{ url_for('admin.services') }}" class="bg-blue-50 text-blue-700 p-3 rounded text-center hover:bg-blue-100">Servicios</a>
-            <a href="{{ url_for('admin.users') }}" class="bg-blue-50 text-blue-700 p-3 rounded text-center hover:bg-blue-100">Personal</a>
-            <a href="{{ url_for('admin.config') }}" class="bg-blue-50 text-blue-700 p-3 rounded text-center hover:bg-blue-100">Configuración</a>
-            <a href="{{ url_for('admin.audits') }}" class="bg-blue-50 text-blue-700 p-3 rounded text-center hover:bg-blue-100">Auditoría</a>
-            <a href="{{ url_for('admin.backups') }}" class="bg-blue-50 text-blue-700 p-3 rounded text-center hover:bg-blue-100">Respaldos</a>
-            <a href="{{ url_for('admin.sanctions') }}" class="bg-blue-50 text-blue-700 p-3 rounded text-center hover:bg-blue-100">Sanciones</a>
+            <a href="{{ url_for('documents.list_documents') }}" class="bg-blue-50 text-blue-700 p-3 rounded text-center hover:bg-blue-100">
+                Gestión Documentos
+            </a>
+
+            <a href="{{ url_for('admin.services') }}" class="bg-blue-50 text-blue-700 p-3 rounded text-center hover:bg-blue-100">
+                Servicios
+            </a>
+
+            <a href="{{ url_for('admin.list_users') }}" class="bg-blue-50 text-blue-700 p-3 rounded text-center hover:bg-blue-100">
+                Personal
+            </a>
+
+            <a href="{{ url_for('admin.office_config') }}" class="bg-blue-50 text-blue-700 p-3 rounded text-center hover:bg-blue-100">
+                Configuración
+            </a>
+
+            <a href="{{ url_for('audits.list_audits') }}" class="bg-blue-50 text-blue-700 p-3 rounded text-center hover:bg-blue-100">
+                Auditoría
+            </a>
+
+            <a href="{{ url_for('backups.list_backups') }}" class="bg-blue-50 text-blue-700 p-3 rounded text-center hover:bg-blue-100">
+                Respaldos
+            </a>
+
+            <a href="{{ url_for('sanctions.list_sanctions') }}" class="bg-blue-50 text-blue-700 p-3 rounded text-center hover:bg-blue-100">
+                Sanciones
+            </a>
+
+            <a href="{{ url_for('complaints.list_complaints') }}" class="bg-blue-50 text-blue-700 p-3 rounded text-center hover:bg-blue-100">
+                Reclamos
+            </a>
         </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl font-bold mb-4">Últimos Movimientos</h2>
+        <div class="space-y-3">
+            {% for log in recent_logs %}
+            <div class="border-b pb-2">
+                <p class="text-sm font-semibold">
+                    {{ users[log.user_id].nombre if log.user_id in users else 'Sistema' }}
+                </p>
+                <p class="text-sm text-gray-700">{{ log.modulo }} - {{ log.accion }}</p>
+                <p class="text-xs text-gray-500">{{ log.fecha.strftime('%d-%m-%Y %H:%M') }}</p>
+            </div>
+            {% else %}
+            <p class="text-sm text-gray-500">No hay movimientos registrados.</p>
+            {% endfor %}
+        </div>
+
+        <a href="{{ url_for('audits.list_audits') }}" class="text-blue-600 underline text-sm mt-3 inline-block">
+            Ver todo el log
+        </a>
     </div>
 </div>
 

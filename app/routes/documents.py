@@ -4,7 +4,7 @@ import shutil
 from flask import Blueprint, render_template, redirect, url_for, flash, current_app, send_from_directory
 from flask_login import login_required, current_user
 from app.models import Document, OfficeConfig
-from app.pdf_service import generate_copy_html
+from app.pdf_service import generate_copy_file
 from app.extensions import db
 from app.utils import save_file, generate_code, sha256_file, log_action, generate_folio
 from app.decorators import roles_required
@@ -18,6 +18,7 @@ documents_bp = Blueprint("documents", __name__, url_prefix="/documents")
 def list_documents():
     estado = request.args.get("estado", "").strip()
     folio = request.args.get("folio", "").strip()
+    page = request.args.get("page", 1, type=int)
 
     query = Document.query.filter_by(eliminado=False).order_by(Document.fecha_creacion.desc())
 
@@ -26,8 +27,16 @@ def list_documents():
     if folio:
         query = query.filter(Document.folio.ilike(f"%{folio}%"))
 
-    docs = query.all()
-    return render_template("documents/list.html", docs=docs, estado=estado, folio=folio)
+    pagination = query.paginate(page=page, per_page=10, error_out=False)
+    docs = pagination.items
+
+    return render_template(
+        "documents/list.html",
+        docs=docs,
+        pagination=pagination,
+        estado=estado,
+        folio=folio
+    )
 
 
 @documents_bp.route("/<int:id>/edit", methods=["GET", "POST"])
@@ -168,7 +177,7 @@ def emit_copy(id):
 
     office = OfficeConfig.query.first()
     try:
-        filename = generate_copy_html(doc, office)
+        filename = generate_copy_file(doc, office)
         doc.copy_file_path = filename
         db.session.commit()
         log_action(current_user.id, "documents", "emitir_copia", f"Copia electrónica emitida para folio {doc.folio}")
