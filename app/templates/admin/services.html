@@ -2,7 +2,7 @@
 {% block content %}
 <div class="flex justify-between mb-4">
     <h1 class="text-2xl font-bold">Servicios</h1>
-    <a href="/admin/services/new" class="bg-blue-700 text-white px-4 py-2 rounded">Nuevo</a>
+    <a href="{{ url_for('admin.new_service') }}" class="bg-blue-700 text-white px-4 py-2 rounded">Nuevo</a>
 </div>
 <table class="w-full bg-white shadow rounded">
     <tr class="border-b">
@@ -15,7 +15,7 @@
         <td class="p-2">{{ item.nombre }}</td>
         <td class="p-2">${{ item.tarifa }}</td>
         <td class="p-2">
-            <a href="/admin/services/{{ item.id }}/edit" class="text-blue-700">Editar</a>
+            <a href="{{ url_for('admin.edit_service', id=item.id) }}" class="text-blue-700">Editar</a>
         </td>
     </tr>
     {% endfor %}

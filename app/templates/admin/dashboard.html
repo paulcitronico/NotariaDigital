@@ -40,13 +40,13 @@
     <div class="bg-white p-6 rounded-lg shadow">
         <h2 class="text-xl font-bold mb-4">Accesos Rápidos</h2>
         <div class="grid grid-cols-2 gap-2">
-            <a href="/documents" class="bg-blue-50 text-blue-700 p-3 rounded text-center hover:bg-blue-100">Gestión Documentos</a>
-            <a href="/admin/services" class="bg-blue-50 text-blue-700 p-3 rounded text-center hover:bg-blue-100">Servicios</a>
-            <a href="/admin/users" class="bg-blue-50 text-blue-700 p-3 rounded text-center hover:bg-blue-100">Personal</a>
-            <a href="/admin/config" class="bg-blue-50 text-blue-700 p-3 rounded text-center hover:bg-blue-100">Configuración</a>
-            <a href="/admin/audits" class="bg-blue-50 text-blue-700 p-3 rounded text-center hover:bg-blue-100">Auditoría</a>
-            <a href="/admin/backups" class="bg-blue-50 text-blue-700 p-3 rounded text-center hover:bg-blue-100">Respaldos</a>
-            <a href="/admin/sanctions" class="bg-blue-50 text-blue-700 p-3 rounded text-center hover:bg-blue-100">Sanciones</a>
+            <a href="{{ url_for('documents.index') }}" class="bg-blue-50 text-blue-700 p-3 rounded text-center hover:bg-blue-100">Gestión Documentos</a>
+            <a href="{{ url_for('admin.services') }}" class="bg-blue-50 text-blue-700 p-3 rounded text-center hover:bg-blue-100">Servicios</a>
+            <a href="{{ url_for('admin.users') }}" class="bg-blue-50 text-blue-700 p-3 rounded text-center hover:bg-blue-100">Personal</a>
+            <a href="{{ url_for('admin.config') }}" class="bg-blue-50 text-blue-700 p-3 rounded text-center hover:bg-blue-100">Configuración</a>
+            <a href="{{ url_for('admin.audits') }}" class="bg-blue-50 text-blue-700 p-3 rounded text-center hover:bg-blue-100">Auditoría</a>
+            <a href="{{ url_for('admin.backups') }}" class="bg-blue-50 text-blue-700 p-3 rounded text-center hover:bg-blue-100">Respaldos</a>
+            <a href="{{ url_for('admin.sanctions') }}" class="bg-blue-50 text-blue-700 p-3 rounded text-center hover:bg-blue-100">Sanciones</a>
         </div>
     </div>
 </div>
