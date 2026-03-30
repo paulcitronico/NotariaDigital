@@ -8,21 +8,21 @@
 <body class="bg-gray-100 text-gray-900">
     <nav class="bg-blue-900 text-white p-4">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <a href="/" class="font-bold text-lg">Notaría Digital</a>
+            <a href="{{ url_for('public.home') }}" class="font-bold text-lg">Notaría Digital</a>
 
             <div class="space-x-4 text-sm">
-                <a href="/servicios" class="hover:underline">Servicios</a>
-                <a href="/reclamos" class="hover:underline">Reclamos</a>
-                <a href="/sanciones" class="hover:underline">Sanciones</a>
-                <a href="/verificar-documento" class="hover:underline">Verificar documento</a>
+                <a href="{{ url_for('public.services') }}" class="hover:underline">Servicios</a>
+                <a href="{{ url_for('public.public_complaints') }}" class="hover:underline">Reclamos</a>
+                <a href="{{ url_for('public.public_sanctions') }}" class="hover:underline">Sanciones</a>
+                <a href="{{ url_for('public.verify_document') }}" class="hover:underline">Verificar documento</a>
 
                 {% if current_user.is_authenticated %}
-                    <a href="/admin" class="hover:underline">Panel</a>
-                    <a href="/documents" class="hover:underline">Documentos</a>
-                    <a href="/admin/complaints" class="hover:underline">Reclamos Admin</a>
-                    <a href="/auth/logout" class="hover:underline text-red-300">Salir</a>
+                    <a href="{{ url_for('admin.dashboard') }}" class="hover:underline">Panel</a>
+                    <a href="{{ url_for('documents.list_documents') }}" class="hover:underline">Documentos</a>
+                    <a href="{{ url_for('complaints.list_complaints') }}" class="hover:underline">Reclamos Admin</a>
+                    <a href="{{ url_for('auth.logout') }}" class="hover:underline text-red-300">Salir</a>
                 {% else %}
-                    <a href="/auth/login" class="hover:underline">Acceso</a>
+                    <a href="{{ url_for('auth.login') }}" class="hover:underline">Acceso</a>
                 {% endif %}
             </div>
         </div>
