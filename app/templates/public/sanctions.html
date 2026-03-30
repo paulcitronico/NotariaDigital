@@ -2,18 +2,43 @@
 {% block content %}
 <h1 class="text-2xl font-bold mb-6">Funcionarios sancionados</h1>
 
-<div class="space-y-4">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     {% for s in sanctions %}
-    <div class="bg-white p-4 rounded shadow">
-        <p><strong>Funcionario:</strong> {{ users[s.funcionario_id].nombre if users.get(s.funcionario_id) else 'No disponible' }}</p>
-        <p><strong>Cargo:</strong> {{ users[s.funcionario_id].cargo if users.get(s.funcionario_id) else '' }}</p>
-        <p><strong>Motivo:</strong> {{ s.motivo }}</p>
-        <p><strong>Resolución:</strong> {{ s.resolucion or 'No informada' }}</p>
-        <p><strong>Fecha sanción:</strong> {{ s.fecha_sancion.strftime('%d-%m-%Y') }}</p>
+    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+        <div class="p-6 flex-grow">
+            <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center mb-4">
+                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+            </div>
+
+            <h2 class="text-xl font-bold text-gray-800 mb-1">
+                {{ users[s.funcionario_id].nombre if users.get(s.funcionario_id) else 'No disponible' }}
+            </h2>
+            <p class="text-sm text-gray-500 mb-4">
+                {{ users[s.funcionario_id].cargo if users.get(s.funcionario_id) else 'Cargo no especificado' }}
+            </p>
+
+            <div class="space-y-3">
+                <div>
+                    <span class="text-xs font-semibold uppercase text-gray-400 tracking-wider">Motivo</span>
+                    <p class="text-gray-600 text-sm leading-relaxed">{{ s.motivo }}</p>
+                </div>
+                <div>
+                    <span class="text-xs font-semibold uppercase text-gray-400 tracking-wider">Resolución</span>
+                    <p class="text-gray-600 text-sm italic">"{{ s.resolucion or 'No informada' }}"</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gray-50 px-6 py-4 flex justify-between items-center border-t border-gray-100">
+            <span class="text-xs font-bold text-gray-400 uppercase">Fecha sanción</span>
+            <span class="text-xl font-bold text-blue-600">{{ s.fecha_sancion.strftime('%d-%m-%Y') }}</span>
+        </div>
     </div>
     {% else %}
-    <div class="bg-white p-4 rounded shadow">
-        <p>No hay sanciones publicadas.</p>
+    <div class="col-span-full bg-white p-8 rounded-3xl text-center shadow-sm border border-gray-100">
+        <p class="text-gray-500">No hay sanciones publicadas actualmente.</p>
     </div>
     {% endfor %}
 </div>
